@@ -48,6 +48,43 @@ def eval_policy_async(policy_fn, cortex_fn, condition="rtc", d=5, tau=3.0,
     return {"success": succ / n_episodes, "return": total_ret / n_episodes}
 
 
+def eval_with_latents_dyn(latents, policy_fn, condition="rtc", d=5, tau=3.0,
+                          n_episodes=None, seed_base=20000, env_kwargs=None,
+                          success_dist=SUCCESS_DIST):
+    """Como eval_with_latents, mas para a tarefa de 2a ordem: a politica ve
+    (pos, vel, z). env_kwargs deve incluir inertia=True."""
+    n_episodes = n_episodes if n_episodes is not None else len(latents)
+    total_ret, succ = 0.0, 0
+    for ep in range(n_episodes):
+        env = ContextualReach(seed=seed_base + ep, **(env_kwargs or {}))
+        obs = env.reset()
+        Lz = latents[ep]
+        done = False
+        step = 0
+        z_used_prev = None
+        ep_ret = 0.0
+        reached = False
+        while not done:
+            if condition == "oracle":
+                z_eff = Lz[min(step, len(Lz) - 1)]
+            else:
+                z_arrived = Lz[max(0, step - d)]
+                if condition == "naive" or z_used_prev is None:
+                    z_eff = z_arrived
+                else:
+                    z_eff = rtc_blend(z_used_prev, z_arrived, i=1, d=0, tau=tau)
+            z_used_prev = z_eff
+            a = policy_fn(obs["pos"], obs["vel"], z_eff)
+            obs, r, done = env.step(a)
+            ep_ret += r
+            if -r <= success_dist:
+                reached = True
+            step += 1
+        total_ret += ep_ret
+        succ += int(reached)
+    return {"success": succ / n_episodes, "return": total_ret / n_episodes}
+
+
 def eval_with_latents(latents, policy_fn, condition="rtc", d=5, tau=3.0,
                       n_episodes=None, seed_base=20000, env_kwargs=None,
                       success_dist=SUCCESS_DIST):

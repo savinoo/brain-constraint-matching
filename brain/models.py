@@ -84,3 +84,16 @@ class AdapterLLM(nn.Module):
     def forward(self, h):
         z = self.net(self.norm(h))
         return torch.nn.functional.normalize(z, dim=-1)
+
+
+class ControllerDyn(nn.Module):
+    """(pos, vel, z) -> acao (forca). Controlador ciente de velocidade, para a
+    tarefa de 2a ordem onde mudancas bruscas custam (regime onde o RTC pode ajudar)."""
+
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(nn.Linear(POS_DIM + POS_DIM + Z_DIM, HIDDEN), nn.ReLU(),
+                                 nn.Linear(HIDDEN, ACTION_DIM))
+
+    def forward(self, pos, vel, z):
+        return self.net(torch.cat([pos, vel, z], dim=-1))

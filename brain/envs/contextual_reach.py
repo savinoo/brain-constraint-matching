@@ -12,13 +12,19 @@ _W = np.random.default_rng(123).standard_normal((SCENE_DIM, GOAL_DIM)).astype(np
 class ContextualReach:
     """Reach 2D com objetivo escondido codificado num 'scene' que troca devagar."""
 
-    def __init__(self, seed=0, switch_every=20, episode_len=100, dt=0.1, noise=0.05):
+    def __init__(self, seed=0, switch_every=20, episode_len=100, dt=0.1, noise=0.05,
+                 inertia=False, damping=0.92, kp=2.5, kd=1.8):
         self.rng = np.random.default_rng(seed)
         self.W = _W
         self.switch_every = switch_every
         self.episode_len = episode_len
         self.dt = dt
         self.noise = noise
+        # modo dinamico (2a ordem): acao = forca/aceleracao; ha velocidade e inercia.
+        self.inertia = inertia
+        self.damping = damping
+        self.kp = kp
+        self.kd = kd
         self.reset()
 
     def _new_goal(self):
@@ -27,6 +33,7 @@ class ContextualReach:
     def reset(self):
         self.t = 0
         self.pos = np.zeros(POS_DIM, dtype=np.float32)
+        self.vel = np.zeros(POS_DIM, dtype=np.float32)
         self.goal = self._new_goal()
         return self._obs()
 
@@ -35,14 +42,23 @@ class ContextualReach:
         return (self.W @ self.goal + n).astype(np.float32)
 
     def _obs(self):
-        return {"scene": self._scene(), "pos": self.pos.copy(), "goal": self.goal.copy()}
+        return {"scene": self._scene(), "pos": self.pos.copy(),
+                "vel": self.vel.copy(), "goal": self.goal.copy()}
 
     def oracle_action(self):
+        if self.inertia:
+            # PD: acelera na direcao do alvo, amortecendo a velocidade
+            return np.clip(self.kp * (self.goal - self.pos) - self.kd * self.vel,
+                           -1.0, 1.0).astype(np.float32)
         return np.clip(self.goal - self.pos, -1.0, 1.0).astype(np.float32)
 
     def step(self, action):
         action = np.clip(np.asarray(action, dtype=np.float32), -1.0, 1.0)
-        self.pos = (self.pos + action * self.dt).astype(np.float32)
+        if self.inertia:
+            self.vel = (self.vel * self.damping + action * self.dt).astype(np.float32)
+            self.pos = (self.pos + self.vel * self.dt).astype(np.float32)
+        else:
+            self.pos = (self.pos + action * self.dt).astype(np.float32)
         self.t += 1
         if self.t % self.switch_every == 0:
             self.goal = self._new_goal()

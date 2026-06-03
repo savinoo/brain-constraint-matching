@@ -101,3 +101,23 @@ def train_freeze_adapt_llm(H, data, epochs=200, lr=1e-3, seed=0, delay_steps=0):
         loss.backward(); opt.step()
         losses.append(loss.item())
     return (adapter, controller), losses
+
+
+def train_freeze_adapt_llm_dyn(H, data, epochs=200, lr=1e-3, seed=0):
+    """Treina AdapterLLM + ControllerDyn (ciente de velocidade) sobre hidden CONGELADO H,
+    imitando o oraculo PD da tarefa de 2a ordem."""
+    from brain.models import AdapterLLM, ControllerDyn
+    _seed(seed)
+    adapter, controller = AdapterLLM(), ControllerDyn()
+    opt = torch.optim.Adam(list(adapter.parameters()) + list(controller.parameters()), lr=lr)
+    loss_fn = nn.MSELoss()
+    pos, vel, act = data["pos"], data["vel"], data["action"]
+    losses = []
+    for _ in range(epochs):
+        opt.zero_grad()
+        z = adapter(H)
+        pred = controller(pos, vel, z)
+        loss = loss_fn(pred, act)
+        loss.backward(); opt.step()
+        losses.append(loss.item())
+    return (adapter, controller), losses
