@@ -1,0 +1,104 @@
+\begin{thebibliography}{13}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Alain and Bengio(2016)]{alain2016}
+Guillaume Alain and Yoshua Bengio.
+\newblock Understanding intermediate layers using linear classifier probes.
+\newblock \emph{arXiv preprint arXiv:1610.01644}, 2016.
+
+\bibitem[Bricken and Pehlevan(2021)]{bricken2021}
+Trenton Bricken and Cengiz Pehlevan.
+\newblock Attention approximates sparse distributed memory.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2021.
+\newblock arXiv:2111.05498.
+
+\bibitem[Devillers et~al.(2024)Devillers, Mayti{\'e}, and
+  VanRullen]{devillers2024}
+Benjamin Devillers, L{\'e}opold Mayti{\'e}, and Rufin VanRullen.
+\newblock Semi-supervised multimodal representation learning through a global
+  workspace.
+\newblock \emph{IEEE Transactions on Neural Networks and Learning Systems},
+  2024.
+\newblock arXiv:2306.15711.
+
+\bibitem[Doerig et~al.(2023)Doerig, Sommers, Seeliger, Richards, Ismael,
+  Lindsay, Kording, Konkle, van Gerven, Kriegeskorte, and
+  Kietzmann]{doerig2023}
+Adrien Doerig, Rowan~P. Sommers, Katja Seeliger, Blake Richards, Jenann Ismael,
+  Grace~W. Lindsay, Konrad~P. Kording, Talia Konkle, Marcel A.~J. van Gerven,
+  Nikolaus Kriegeskorte, and Tim~C. Kietzmann.
+\newblock The neuroconnectionist research programme.
+\newblock \emph{Nature Reviews Neuroscience}, 24:\penalty0 431--450, 2023.
+
+\bibitem[Fountas et~al.(2025)Fountas, Benfeghoul, Oomerjee, Christopoulou,
+  Lampouras, Bou-Ammar, and Wang]{fountas2025}
+Zafeirios Fountas, Martin~A. Benfeghoul, Adnan Oomerjee, Fenia Christopoulou,
+  Gerasimos Lampouras, Haitham Bou-Ammar, and Jun Wang.
+\newblock Human-inspired episodic memory for infinite context llms.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2025.
+\newblock arXiv:2407.09450.
+
+\bibitem[Guti{\'e}rrez et~al.(2024)Guti{\'e}rrez, Shu, Gu, Yasunaga, and
+  Su]{gutierrez2024}
+Bernal~Jim{\'e}nez Guti{\'e}rrez, Yiheng Shu, Yu~Gu, Michihiro Yasunaga, and
+  Yu~Su.
+\newblock Hipporag: Neurobiologically inspired long-term memory for large
+  language models.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2024.
+\newblock arXiv:2405.14831.
+
+\bibitem[Hewitt and Liang(2019)]{hewitt2019}
+John Hewitt and Percy Liang.
+\newblock Designing and interpreting probes with control tasks.
+\newblock In \emph{Empirical Methods in Natural Language Processing (EMNLP)},
+  2019.
+\newblock arXiv:1909.03368.
+
+\bibitem[Jonas and Kording(2017)]{jonas2017}
+Eric Jonas and Konrad~Paul Kording.
+\newblock Could a neuroscientist understand a microprocessor?
+\newblock \emph{PLoS Computational Biology}, 13\penalty0 (1):\penalty0
+  e1005268, 2017.
+
+\bibitem[Lillicrap and Kording(2019)]{lillicrap2019}
+Timothy~P. Lillicrap and Konrad~P. Kording.
+\newblock What does it mean to understand a neural network?
+\newblock \emph{arXiv preprint arXiv:1907.06374}, 2019.
+
+\bibitem[Marr(1982)]{marr1982}
+David Marr.
+\newblock \emph{Vision: A Computational Investigation into the Human
+  Representation and Processing of Visual Information}.
+\newblock W. H. Freeman, 1982.
+
+\bibitem[O'Reilly et~al.(2016)O'Reilly, Hazy, and Herd]{oreilly2016}
+Randall~C. O'Reilly, Thomas~E. Hazy, and Seth~A. Herd.
+\newblock The leabra cognitive architecture: How to play 20 principles with
+  nature and win!
+\newblock In \emph{The Oxford Handbook of Cognitive Science}. Oxford University
+  Press, 2016.
+
+\bibitem[Ramsauer et~al.(2021)Ramsauer, Sch{\"a}fl, Lehner, Seidl, Widrich,
+  Adler, Gruber, Holzleitner, Pavlovi{\'c}, Sandve, et~al.]{ramsauer2020}
+Hubert Ramsauer, Bernhard Sch{\"a}fl, Johannes Lehner, Philipp Seidl, Michael
+  Widrich, Thomas Adler, Lukas Gruber, Markus Holzleitner, Milena Pavlovi{\'c},
+  Geir~Kjetil Sandve, et~al.
+\newblock Hopfield networks is all you need.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021.
+\newblock arXiv:2008.02217.
+
+\bibitem[Sumers et~al.(2024)Sumers, Yao, Narasimhan, and Griffiths]{sumers2024}
+Theodore~R. Sumers, Shunyu Yao, Karthik Narasimhan, and Thomas~L. Griffiths.
+\newblock Cognitive architectures for language agents.
+\newblock \emph{Transactions on Machine Learning Research (TMLR)}, 2024.
+\newblock arXiv:2309.02427.
+
+\end{thebibliography}
