@@ -3,9 +3,9 @@ import torch
 from brain.envs.contextual_reach import ContextualReach
 
 
-def collect_oracle_dataset(n_episodes=200, seed=0):
+def collect_oracle_dataset(n_episodes=200, seed=0, env_kwargs=None):
     """Rola o oráculo e coleta (scene, pos, goal, ação-do-oráculo) para imitação."""
-    env = ContextualReach(seed=seed)
+    env = ContextualReach(seed=seed, **(env_kwargs or {}))
     scenes, poss, goals, acts = [], [], [], []
     for _ in range(n_episodes):
         obs = env.reset()
