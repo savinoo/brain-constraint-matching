@@ -73,3 +73,20 @@ da representação congelada da LLM (capacidade enorme → quase sempre o caso).
 é a classe de variáveis que a LLM simplesmente **não representa** (o análogo do gargalo). Próximo passo
 de escala (V-JEPA 2 / LLM real) deve medir, com sonda linear, se as variáveis de controle são
 decodificáveis da representação congelada — esse é o teste que prevê sucesso/fracasso.
+
+## Confirmação quantitativa — a fronteira é exata
+
+Varredura da dimensão do gargalo do córtex congelado (objetivo da tarefa = 2-D), regime HOLD,
+média de 3 seeds:
+
+| capacidade do gargalo | sucesso |
+|---|---|
+| 1-D | 0.25 |
+| 2-D | 1.00 |
+| 3-D | 1.00 |
+| 4-D | 1.00 |
+
+**Congelar falha exatamente quando a capacidade da representação cai abaixo da dimensão intrínseca
+da tarefa** (aqui, 2). Acima do limiar, congelar é gratuito. Isto transforma o risco numa quantidade
+mensurável: *a representação congelada carrega ≥ as variáveis que a tarefa precisa?* — exatamente o
+que uma sonda linear sobre a LLM/V-JEPA-2 mede no estágio seguinte.

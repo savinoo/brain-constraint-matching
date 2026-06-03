@@ -49,7 +49,7 @@ def _t1(x):
     return torch.tensor(_np(x)).unsqueeze(0)
 
 
-def pretrain_cortex_mode(data, mode="rich", epochs=200, lr=1e-3, seed=0):
+def pretrain_cortex_mode(data, mode="rich", epochs=200, lr=1e-3, seed=0, bottleneck=1):
     """Pré-treina o córtex e o congela. Modos de qualidade das features congeladas:
       rich       -> prevê o objetivo exato (features ricas, alinhadas);
       coarse     -> prevê só o sinal/quadrante (objetivo pobre — mas as features podem
@@ -58,7 +58,7 @@ def pretrain_cortex_mode(data, mode="rich", epochs=200, lr=1e-3, seed=0):
       random     -> córtex aleatório congelado, sem pré-treino (features de reservatório).
     """
     torch.manual_seed(seed)
-    cortex = BottleneckCortex(bottleneck=1) if mode == "bottleneck" else Cortex()
+    cortex = BottleneckCortex(bottleneck=bottleneck) if mode == "bottleneck" else Cortex()
     head = CortexPretrainHead()
     if mode == "random":
         for p in cortex.parameters():
