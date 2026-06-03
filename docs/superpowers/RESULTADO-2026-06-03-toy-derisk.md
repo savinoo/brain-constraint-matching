@@ -90,3 +90,22 @@ média de 3 seeds:
 da tarefa** (aqui, 2). Acima do limiar, congelar é gratuito. Isto transforma o risco numa quantidade
 mensurável: *a representação congelada carrega ≥ as variáveis que a tarefa precisa?* — exatamente o
 que uma sonda linear sobre a LLM/V-JEPA-2 mede no estágio seguinte.
+
+## A sonda linear PREVÊ o sucesso (instrumento do estágio 2 validado)
+
+Sonda linear = regressão linear da representação congelada → objetivo (R² out-of-sample). Mede
+decodabilidade. Média de 3 seeds, regime HOLD:
+
+| modo do córtex congelado | sonda R² | sucesso do congelamento |
+|---|---|---|
+| rico | 1.00 | 1.00 |
+| grosseiro | 0.99 | 1.00 |
+| desalinhado | 0.99 | 0.99 |
+| aleatório | 0.99 | 0.99 |
+| gargalo 1-D | 0.43 | 0.25 |
+
+A R² da sonda **prevê** se congelar vai funcionar. Isto valida, no brinquedo onde conhecemos a
+verdade, o **instrumento barato do estágio 2**: antes de construir qualquer coisa sobre uma
+LLM/V-JEPA congelada, rodar uma sonda linear das variáveis de controle sobre a representação dela.
+R² alto → congelar é seguro; R² baixo → a LLM não representa o que a tarefa precisa, e só aí o
+congelamento é um problema. **Barato, decisivo, e mede exatamente o risco real.**
