@@ -66,3 +66,21 @@ class Monolith(nn.Module):
 
     def forward(self, scene, pos):
         return self.net(torch.cat([scene, pos], dim=-1))
+
+
+H_DIM = 896  # hidden da Qwen2.5-0.5B
+
+
+class AdapterLLM(nn.Module):
+    """hidden da LLM congelada -> z' (Z_DIM). LayerNorm na entrada (anti-outlier
+    dimensions dos hidden de LLM) + L2-norm na saida (limita o quao OOD um latente
+    velho fica quando a ponte o transporta defasado)."""
+
+    def __init__(self, h_dim=H_DIM):
+        super().__init__()
+        self.norm = nn.LayerNorm(h_dim)
+        self.net = nn.Sequential(nn.Linear(h_dim, HIDDEN), nn.GELU(), nn.Linear(HIDDEN, Z_DIM))
+
+    def forward(self, h):
+        z = self.net(self.norm(h))
+        return torch.nn.functional.normalize(z, dim=-1)

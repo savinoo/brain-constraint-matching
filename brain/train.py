@@ -78,3 +78,26 @@ def train_monolith(data, epochs=200, lr=1e-3, seed=0):
         loss.backward(); opt.step()
         losses.append(loss.item())
     return monolith, losses
+
+
+def train_freeze_adapt_llm(H, data, epochs=200, lr=1e-3, seed=0, delay_steps=0):
+    """Treina AdapterLLM + Controller sobre hidden CONGELADO H (N, H_DIM), imitando
+    o oraculo. delay_steps>0 serve o latente defasado durante o treino (robustez por
+    construcao, truque do Helix)."""
+    from brain.models import AdapterLLM, Controller
+    _seed(seed)
+    adapter, controller = AdapterLLM(), Controller()
+    opt = torch.optim.Adam(list(adapter.parameters()) + list(controller.parameters()), lr=lr)
+    loss_fn = nn.MSELoss()
+    pos, act = data["pos"], data["action"]
+    losses = []
+    for _ in range(epochs):
+        opt.zero_grad()
+        z = adapter(H)
+        if delay_steps > 0:
+            z = torch.roll(z, shifts=delay_steps, dims=0)
+        pred = controller(pos, z)
+        loss = loss_fn(pred, act)
+        loss.backward(); opt.step()
+        losses.append(loss.item())
+    return (adapter, controller), losses
