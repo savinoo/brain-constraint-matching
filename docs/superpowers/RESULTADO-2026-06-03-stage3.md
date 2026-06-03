@@ -60,3 +60,41 @@ Para fechar o veredito co-controlador vs planejador, é preciso, juntos:
 3. (Opcional) **MLX** se a latência da Qwen no MPS for o gargalo.
 
 O de-risco que importava — a LLM congelada carrega a informação de controle — está **feito e positivo**.
+
+---
+
+## ATUALIZAÇÃO — tarefa com DINÂMICA (2ª ordem) + veredito final
+
+Implementei o modo **inércia** na tarefa (ação = força, há velocidade; oráculo PD; controlador
+`ControllerDyn` que vê pos+vel) — o regime onde mudanças bruscas custam (overshoot) e o RTC *poderia*
+ajudar. **28 testes verdes** no servidor.
+
+### Resultado no STUB (latente limpo, experimento COM PODER) — o controlado
+| condição | d=0 | d=2 | d=5 | d=10 | d=20 | d=40 |
+|---|---|---|---|---|---|---|
+| oracle (fresco) | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+| naive (defasado) | 1.00 | 0.90 | 0.75 | 0.75 | 0.70 | 0.70 |
+| rtc (suavizado) | 0.95 | 0.80 | 0.75 | 0.80 | 0.70 | 0.70 |
+
+### Resultado no MAC (Qwen real) — confirma representação, mas sub-dimensionado
+GATE_R² = **0.89** (✅ representação de novo). Mas `oracle` colapsou a 0.38: com a LLM real, o
+controle em malha fechada ficou limitado por **escala de treino (~720 amostras) + latente de 8-dim**
+(não pela latência). Curva sem poder — não usável (igual ao caso cinemático).
+
+### VEREDITO (combinando o stub controlado + o gatekeeper real)
+1. **Representação (LLM-como-córtex):** ✅ sólida e repetida (gate R² 0.87–0.97 num LLM real).
+2. **Custo de latência:** real e cresce com o atraso (naive degrada). **No ponto de operação real**
+   (latência ~83 ms morno → **d≈4** a 50 Hz), a staleness é **leve** (naive ≈ 0.90). → **a LLM
+   congelada como CO-CONTROLADORA é viável na latência medida**, sem precisar de truque.
+3. **RTC-de-latente NÃO é a alavanca.** Mesmo com dinâmica, suavizar o latente não bate o naive
+   (às vezes piora). Faz sentido: o RTC da literatura age no **chunk de ação** (inpainting de ações),
+   não no objetivo-latente. Nossa arquitetura (LLM emite objetivo-latente) não tem esse nível.
+   A alavanca contra latência alta é a **cadência da LLM / split planejador-vs-controlador**, não o RTC.
+4. **Planejador lento (Plano B):** só seria necessário se a latência fosse muito maior (d grande,
+   onde naive cai a ~0.70). Na latência atual, não precisa.
+
+**Conclusão honesta:** o estágio 3 entregou o que importava — a **premissa do córtex-LLM congelado
+está validada num LLM real** e a **latência real é baixa o suficiente para co-controle**. O ganho do
+RTC, especificamente, **não se materializa** nesta arquitetura de latente (e o experimento mostrou por
+quê). O que falta para um número de malha fechada com a LLM real é **escala/fidelidade** (mais treino,
+latente maior, e cache/batch dos forwards) — engenharia, não conceito.
