@@ -165,3 +165,38 @@ Importar mecanismos do cérebro por analogia funcional mistura dois níveis: a f
 Calibramos a reivindicação ao que os dados sustentam. O teste forte da regra tem n=1 mecanismo, e foi rodado sobre vetores sintéticos. E4 testa a função, não a implementação cérebro-fiel, contra um baseline incapaz por construção. A atenção/CA3 do transformer é um teste de sanidade — a regra é consistente com mantê-la — não uma predição. A regra foi derivada dos casos, não validada prospectivamente. Essas não são notas de rodapé: são o estado real da evidência.
 
 O que sobra, depois de descontar tudo isso, ainda é útil: um critério que torna a decisão de portar um mecanismo *falsificável* em vez de retórica, e que localiza a ambiguidade num ponto concreto (qual é a restrição, ela está presente, é ela mensurável por sonda?). Para restrições concretas — decodabilidade linear, presença de um sinal de recompensa — a regra dá um teste operacional. Para restrições difusas, ela é tão fluida quanto a dicotomia que substitui; não dissolve esse problema, apenas o torna localizável. O próximo passo é o que falta para a regra prever, e não só explicar: pré-registrar a predição para um mecanismo ainda não testado, refazer E3 sobre embeddings reais com k varrido, e levar a sonda linear a um substrato de escala real.
+
+---
+
+## Addendum (rigor) — 2026-06-04, após a primeira versão
+
+Três das ameaças à validade da §5 foram atacadas depois da primeira versão. Os resultados abaixo entram aqui em vez de reescrever as seções, para preservar o rastro (a primeira versão já estava commitada). Integrar inline fica para uma revisão futura.
+
+### A1. E3 com k varrido — nenhuma esparsidade bate o RAG
+A §5 admitia: "mostramos que *esta* esparsidade (k≈5%) é nociva, não que *nenhuma* configuração ajuda". Varremos k ∈ {2, 5, 10, 25, 50, 100}% no regime discriminativo (5 seeds). Nenhum k iguala o RAG. Sob corrupção 0.9, d=64: RAG=0.54; o melhor k é 0.43 (em k=50%). No regime adversarial (d=16, corrupção 0.7): RAG=0.29; melhor k=0.20. Em **k=100%** — sem k-WTA, o DG vira uma rotação aleatória — o recall (0.42 / 0.20) ainda fica **abaixo** do RAG, o que isola um segundo efeito: não é só a esparsificação do DG que custa; a **completação do CA3 (atrator de Hopfield) por si só** não ajuda sobre vetores densos. O caveat "k não varrido" está fechado: o null é robusto a k.
+
+### A2. E3 sobre embeddings REAIS de LLM — o null fica mais forte, não mais fraco
+A ameaça mais material da §5 era o substrato sintético (clusters gaussianos isotrópicos, onde o cosseno é quase-ótimo por construção). Refizemos o E3 sobre **200 embeddings reais da Qwen2.5-0.5B** (camada 12, último token, 896 dims, no Mac/MPS) de frases curtas distintas. Resultado (3 seeds), recall@1 sob corrupção:
+
+| corrupção | RAG (cosseno cru) | melhor DG+CA3 (k∈{5,25,100}%) |
+|---|---|---|
+| 0.5 | 0.87 | 0.04 |
+| 0.7 | 0.58 | 0.03 |
+| 0.9 | 0.37 | 0.02 |
+
+Sobre embeddings reais, **anisotrópicos**, o micro-circuito DG/CA3 não perde por pouco — **colapsa** (recall ≈ 0.02–0.04 contra 0.37–0.87 do RAG). O null do E3 não era artefato do substrato sintético; em dado real ele é **mais forte**. Mecanismo: a anisotropia dos embeddings de LLM (poucas direções dominantes) faz o `softmax(β·Xᵀξ)` do CA3 saturar para uma distribuição quase-uniforme — o estado metaestável que recupera a *média* dos padrões, não o item, exatamente o risco #1 da §5. **Caveat honesto que permanece:** o β do CA3 (=8) foi fixado, não re-tunado para a escala/anisotropia dos vetores reais; um β maior ou um branqueamento prévio poderia reduzir o colapso. A afirmação defensável é: *out-of-the-box*, a cadeia cérebro-fiel falha sobre embeddings reais onde o RAG é robusto. Que o CA3 seja frágil à anisotropia é, em si, um achado mecanicista a favor da tese.
+
+### A3. E5 — pré-registro do lado positivo, com baseline competente
+A §4 reconhecia que o lado positivo (E4) era fraco: baseline incapaz por construção, e a regra fora *derivada* dos casos, não validada prospectivamente. Corrigimos os dois com um pré-registro (`docs/superpowers/PRE-REGISTRO-2026-06-04-eligibility.md`, commitado **antes** de rodar). Mecanismo cérebro-fiel: **traços de elegibilidade — TD(λ)** (elegibilidade sináptica + plasticidade gateada por dopamina). Restrição: atribuição de crédito através de um gap temporal. Baseline **competente**: TD de um passo (λ=0). Tarefa: recompensa atrasada por K passos.
+
+Predição declarada antes (resumo): TD(λ) vence o TD de um passo sob atraso, empata sem atraso, e a vantagem cresce com K. Resultado (5 seeds, acurácia greedy, orçamento fixo):
+
+| | K=0 | K=4 | K=8 | K=16 | K=24 |
+|---|---|---|---|---|---|
+| TD de um passo (λ=0) | 1.00 | 0.07 | 0.17 | 0.27 | 0.30 |
+| TD(λ=0.9) | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 |
+
+A predição **se manteve na direção e na magnitude**: empate em K=0 (restrição ausente → sem vantagem), e TD(λ) ≥ 0.9 contra TD de um passo < 0.6 para todo K≥4 (predição 3). A sub-predição do crescimento *monotônico* com K **falhou**: a vantagem é máxima em K=4 e decresce levemente até K=24, porque o TD de um passo fica menos errado (mais perto do acaso), não mais errado. Registro como acerto da direção e da magnitude, erro da forma da curva. Isto move o lado positivo de "baseline incapaz, post-hoc" (E4) para "baseline competente, predição cega que se manteve" (E5) — o upgrade de explicativo para preditivo que a §5 pedia, agora num caso.
+
+### O que ainda falta (honestidade que permanece)
+Tudo segue tabular/toy. O E5 é **um** pré-registro, não um programa; e testa a *função* (TD(λ) é o mecanismo, não uma implementação estriatal). A catástrofe do E3 real é parcialmente uma interação β/anisotropia não-tunada. A regra agora tem: um null forte e *robusto a k e a embeddings reais* (lado ausente) e um lado positivo *pré-registrado contra baseline competente* (lado presente). É mais do que a v1 — não é ainda escala real nem replicação independente.
