@@ -4,3 +4,11 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 results/
+.superpowers/
+.remember/
+paper/main.aux
+paper/main.log
+paper/main.out
+paper/main.bbl
+paper/main.blg
+paper/*.aux
